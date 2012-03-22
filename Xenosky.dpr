@@ -13,9 +13,9 @@ uses
   Unit5 in 'Unit5.pas' {frmClouds},
   fractal_terrain in 'fractal_terrain.pas',
   Unit6 in 'Unit6.pas' {frmTerrain},
-  colorimetry_lib_0_05 in 'colorimetry_lib_0_05.pas',
   Unit7 in 'Unit7.pas' {Form7},
-  table_func_lib in 'table_func_lib.pas';
+  table_func_lib in 'table_func_lib.pas',
+  colorimetry_lib in 'colorimetry_lib.pas';
 
 {$R *.res}
 

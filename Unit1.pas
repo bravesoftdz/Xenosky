@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, Unit2,Celestial_body_lib,table_func_lib,unit3,
   ExtCtrls,unit4, AppEvnts,atmosphere_lib, TeEngine, Series, TeeProcs,
-  Chart, ComCtrls,Spectator_lib,colorimetry_lib_0_05,math,optic_aberrations,unit5,
+  Chart, ComCtrls,Spectator_lib,colorimetry_lib,math,optic_aberrations,unit5,
   fractal_terrain,unit6,unit7;
 
 type

@@ -1,7 +1,7 @@
 unit Spectator_lib;
 
 interface
-uses graphics,atmosphere_lib,colorimetry_lib_0_05,math,sysUtils,optic_aberrations;
+uses graphics,atmosphere_lib,colorimetry_lib,math,sysUtils,optic_aberrations;
 type
   xycoord=record
     x,y: Integer;
