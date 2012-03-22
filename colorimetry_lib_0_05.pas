@@ -50,7 +50,7 @@ desat=0 - отр. значения обрезаются до 0
 interface
 
 uses
-table_func_lib_0_70,graphics,math,windows,chart,TeeProcs,Series;
+table_func_lib,graphics,math,windows,chart,TeeProcs,Series;
 
 type
 RGBf=record

@@ -1,7 +1,7 @@
 unit atmosphere_lib;
 
 interface
-uses math,table_func_lib_0_70,classes;
+uses math,table_func_lib,classes;
 type
 Yxy=record
   L,x,y: Real;

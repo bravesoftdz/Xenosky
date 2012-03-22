@@ -1,7 +1,7 @@
 unit Celestial_body_lib;
 
 interface
-uses math,table_func_lib_0_70,graphics,classes;
+uses math,table_func_lib,graphics,classes;
 type
 TCelestialBody=class(TPersistent)
   private
