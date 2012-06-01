@@ -192,7 +192,7 @@ end;
 procedure TForm1.FormShow(Sender: TObject);
 begin
   SetLength(bodies,1);
-  bodies[0]:=TCelestialBody.Create;
+  bodies[0]:=TCelestialBody.Create(nil);
   bodies[0].spectrum.loadFromFile('data\spectra\Solar_spectrum.txt');
   bodies[0].vmag:=-26.74;
   bodies[0].title:='Солнце';
@@ -250,7 +250,7 @@ var i,j: Integer;
 begin
   j:=Length(bodies);
   SetLength(bodies,j+1);
-  bodies[j]:=TCelestialBody.Create;
+  bodies[j]:=TCelestialBody.Create(nil);
   bodies[j].title:='untitled';
   lstBodies.AddItem(bodies[j].title,bodies[j]);
   lstBodies.ItemIndex:=j;

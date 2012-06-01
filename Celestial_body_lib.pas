@@ -1,24 +1,32 @@
 unit Celestial_body_lib;
 
 interface
-uses math,table_func_lib,graphics,classes;
+uses math,table_func_lib,graphics,classes,streaming_class_lib;
 type
-TCelestialBody=class(TPersistent)
+TCelestialBody=class(streamingClass)
   private
-//    _filename: string;
+    _vmag: Real; //зв. величина
+    _title: string; //название
+    _description: string; //описание
+    _azimuth: Real; //азимут
+    _altitude: Real; //угол места
+    _ang_size: Real; //угол зрения
+
+  //    _filename: string;
 //    procedure write_filename(fn: string);
   public
     spectrum: table_func; //спектр
-    vmag: Real; //зв. величина
-    title: string; //название
-    description: string; //описание
-    azimuth: Real; //азимут
-    altitude: Real; //угол места
     img: TBitmap; //изображение
-    ang_size: Real; //угол зрения
-    constructor Create;
+    constructor Create(owner: TComponent); override;
     destructor Destroy;
     procedure assign(Source:TPersistent); override;
+  published
+    property vmag: Real read _vmag write _vmag; //зв. величина
+    property title: string read _title write _title;
+    property description: string read _description write _description;
+    property azimuth: Real read _azimuth write _azimuth;
+    property altitude: Real read _altitude write _altitude;
+    property ang_size: Real read _ang_size write _ang_size;
 //    property spectrum_filename: string read _filename write write_filename;
 end;
 
@@ -42,9 +50,9 @@ begin
   else inherited Assign(Source);
 end;
 
-constructor TCelestialBody.Create;
+constructor TCelestialBody.Create(owner: TComponent);
 begin
-  Inherited Create;
+  Inherited Create(owner);
   spectrum:=table_func.Create;
   img:=TBitmap.Create;
 end;

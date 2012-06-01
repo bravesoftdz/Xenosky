@@ -51,7 +51,7 @@ implementation
 
 procedure TForm3.FormCreate(Sender: TObject);
 begin
-  body:=TCelestialBody.Create;
+  body:=TCelestialBody.Create(nil);
 end;
 
 procedure TForm3.FormDestroy(Sender: TObject);

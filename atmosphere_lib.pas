@@ -1,12 +1,16 @@
 unit atmosphere_lib;
 
 interface
-uses math,table_func_lib,classes;
+uses math,table_func_lib,classes,streaming_class_lib;
 type
 Yxy=record
   L,x,y: Real;
 end;
-
+(*
+TAbstractAtmosphere=class(stremingClass)
+  public
+*)
+//TAtmosphere=class(streamingClass)
 TAtmosphere=class(TPersistent)
   private
     // эмпирическая модель земной атмосферы от A. J. Preetham Peter Shirley Brian Smits
