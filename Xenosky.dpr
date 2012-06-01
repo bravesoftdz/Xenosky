@@ -15,7 +15,8 @@ uses
   Unit6 in 'Unit6.pas' {frmTerrain},
   Unit7 in 'Unit7.pas' {Form7},
   table_func_lib in 'table_func_lib.pas',
-  colorimetry_lib in 'colorimetry_lib.pas';
+  colorimetry_lib in 'colorimetry_lib.pas',
+  streaming_class_lib in 'streaming_class_lib.pas';
 
 {$R *.res}
 

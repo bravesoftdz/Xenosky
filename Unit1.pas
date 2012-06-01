@@ -7,7 +7,7 @@ uses
   Dialogs, StdCtrls, Unit2,Celestial_body_lib,table_func_lib,unit3,
   ExtCtrls,unit4, AppEvnts,atmosphere_lib, TeEngine, Series, TeeProcs,
   Chart, ComCtrls,Spectator_lib,colorimetry_lib,math,optic_aberrations,unit5,
-  fractal_terrain,unit6,unit7;
+  fractal_terrain,unit6,unit7,streaming_class_lib;
 
 type
   TForm1 = class(TForm)
@@ -62,6 +62,7 @@ type
     Button9: TButton;
     Button10: TButton;
     dlgTxt: TSaveDialog;
+    Button11: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure lstBodiesClick(Sender: TObject);
@@ -95,6 +96,7 @@ type
     procedure Button8Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -105,8 +107,14 @@ type
     x,y,z: Real;
   end;
 
+  xenosky_data=class(streamingClass)
+  end;
+
 var
   Form1: TForm1;
+
+  data: xenosky_data;
+
   bodies: array of TCelestialBody;
   at: TAtmosphere;
   use_keyboard: Boolean;
@@ -151,6 +159,29 @@ begin
   coal:=cos(ral);
 end;
 *)
+procedure LoadDataFile(FileName: string);
+var t: streamingClass;
+    i,j: Integer;
+begin
+  if data<>nil then data.Free;
+  t:=xenosky_data.LoadFromFile(FileName);
+  if not (t is xenosky_data) then raise exception.Create('Data loaded is not xenosky_data');
+  data:=xenosky_data(t);
+  j:=0;
+  for i:=0 to data.ComponentCount-1 do begin
+    if data.Components[i] is TcelestialBody then begin
+      SetLength(bodies,j+1);
+      bodies[j]:=TCelestialBody(data.components[i]);
+      inc(j);
+    end;
+  end;
+
+
+
+
+end;
+
+
 procedure update_atm;
 begin
   with form1 do begin
@@ -191,8 +222,9 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  (*
   SetLength(bodies,1);
-  bodies[0]:=TCelestialBody.Create(nil);
+  bodies[0]:=TCelestialBody.Create(data);
   bodies[0].spectrum.loadFromFile('data\spectra\Solar_spectrum.txt');
   bodies[0].vmag:=-26.74;
   bodies[0].title:='Солнце';
@@ -201,6 +233,10 @@ begin
   bodies[0].altitude:=pi/2;
   bodies[0].ang_size:=0.5*pi/180;
   bodies[0].img.LoadFromFile('data\img\sun.bmp');
+  data.SaveToFile('default_data.txt');
+  *)
+
+  LoadDataFile('default_data.txt');
 
   update_bodies_list;
   update_atm;
@@ -250,7 +286,7 @@ var i,j: Integer;
 begin
   j:=Length(bodies);
   SetLength(bodies,j+1);
-  bodies[j]:=TCelestialBody.Create(nil);
+  bodies[j]:=TCelestialBody.Create(data);
   bodies[j].title:='untitled';
   lstBodies.AddItem(bodies[j].title,bodies[j]);
   lstBodies.ItemIndex:=j;
@@ -352,6 +388,8 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  data:=xenosky_data.Create(nil);
+
   at:=TAtmosphere.Create;
   previewer:=TSpectator.Create;
   cloudy_atm:=TSpectator.Create;
@@ -380,6 +418,8 @@ begin
   terr_sp.Free;
 
   chart_spectrum.Free;
+
+  data.free;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
@@ -715,4 +755,12 @@ begin
 
 end;
 
+procedure TForm1.Button11Click(Sender: TObject);
+begin
+  if dlgTxt.Execute then
+    data.SaveToFile(dlgTxt.FileName);
+end;
+
+initialization
+RegisterClass(xenosky_data);
 end.

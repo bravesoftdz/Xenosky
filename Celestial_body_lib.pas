@@ -71,6 +71,7 @@ begin
     spectrum.LoadFromFile(fn);
 end;
 *)
-
+initialization
+RegisterClass(TCelestialBody);
 end.
  

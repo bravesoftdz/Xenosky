@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 224
-  Top = 198
+  Left = 213
+  Top = 138
   Width = 870
   Height = 638
   Caption = 'Xenosky v. 0.33 - '#1075#1077#1085#1077#1088#1072#1090#1086#1088' '#1080#1085#1086#1087#1083#1072#1085#1077#1090#1085#1086#1075#1086' '#1085#1077#1073#1072
@@ -514,6 +514,15 @@ object Form1: TForm1
     Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
     TabOrder = 6
     OnClick = Button8Click
+  end
+  object Button11: TButton
+    Left = 768
+    Top = 144
+    Width = 73
+    Height = 25
+    Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+    TabOrder = 7
+    OnClick = Button11Click
   end
   object ApplicationEvents1: TApplicationEvents
     OnMessage = ApplicationEvents1Message
