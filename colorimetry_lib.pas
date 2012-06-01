@@ -1,5 +1,19 @@
-unit colorimetry_lib_0_04;
-(* верси€ 0.04
+unit colorimetry_lib;
+(* верси€ 0.07
+
+изменени€ в v. 0.07
+- таблицы xt,yt,zt перемещены в data/colorimetry/
+
+изменени€ в v. 0.06
+- таблицы xt,yt,zt стали публичными
+- нова€ функци€ color_from_YxY - чтобы получить цвет из переменных Y,x,y (€ркость и 2 коэф. цвета)
+- gamma содержит защиту от переполнени€
+- нова€ функци€ color_from_normedXYZ - чтобы получить цвет+€ркость, причем Y=1 соотв. макс. €ркости, отобр. на экране
+- функци€ spectrum2XYZ - пересчитывает спектр в коорд. CIE1931.
+
+изменени€ в v. 0.05
+- вроде бы 2 параллельные версии 0.04 наконец объединены в одну
+- нова€ функци€ color_of_rgb_sum - чтобы найти суммарный цвет от спектра
 
 изменени€ в v. 0.04
 - добавлены функции color_from_WL (цвет - из длины волны, т.е из чистой спектральной линии)
@@ -7,7 +21,7 @@ unit colorimetry_lib_0_04;
 - Add_CCT помен€лась - теперь там учитываетс€ зависимость п€той степени макс. интенсивности от температуры
 - gamma_func стала публичной, чтобы гамму-корекцию можно было использовать в программе
 - добавлена gamma - та же гамма-коррекци€, но уже домножена на 255 и приведена к типу Integer
-- добавлена функци€ color_from_XY (цвет - из координат x,y, которые часто указываютс€ в даташитах на —ƒ)
+
 изменени€ в v. 0.03
 - добавлены переменные sat и desat, диктующие, как работать
 с отрицательными коэф. r,g,b и со слишком большими.
@@ -36,19 +50,22 @@ desat=0 - отр. значени€ обрезаютс€ до 0
 interface
 
 uses
-table_func_lib_0_62,graphics,math,windows,chart,TeeProcs,Series;
+table_func_lib,graphics,math,windows,chart,TeeProcs,Series;
 
 type
 RGBf=record
   R,G,B: Real;
 end;
+CIE1931=record
+  X,Y,Z: Real;
+end;
 colorimetry_funcs=class
   private
-    xt,yt,zt: table_func;
+    rt,gt,bt :table_func;
     function XYZ2RGB(x:Real;y:Real;z:Real): RGBf;
     function XYZ2RGB_no_limit(x:Real;y:Real;z:Real): RGBf;
   public
-    rt,gt,bt :table_func;
+    xt,yt,zt: table_func;
     canvas: TCanvas;
     XLeft,XRight,YTop,YBottom :Integer;
     desat :Real; //насколько мы "забел€ем" спектр ради точности
@@ -60,10 +77,16 @@ colorimetry_funcs=class
     function ColorFromCCT(T: Real) :TColor;
     function ColorFromWL(wl: Real) :TColor;
     function ColorFromSpectrum(sp: table_func) :TColor;
-    function ColorFromXY(x: Real; Y: Real): TColor;
+    function ColorFromYxY(L,x,y: Real): TColor;
+    function ColorFromNormedXYZ(x,y,z: Real): TColor;
+    function Spectrum2XYZ(sp: table_func): CIE1931;
+
     procedure AddRGB(X: Real; r:Real; g:Real; b:Real);
-    procedure AddMonochr(X:Real; lambda: Real);
+    procedure AddMonochr(X:Real; lambda: Real); overload;
+    procedure AddMonochr(X,lambda,coeff: Real); overload;
     procedure AddCCT(X:Real; CCT: Real);
+    function ColorFromTable(X: Real): TColor;
+    function ColorOfRGBSum: TColor;
     procedure Clear;
     constructor Create;
     destructor Destroy; override;
@@ -74,9 +97,9 @@ implementation
 constructor colorimetry_funcs.Create;
 begin
   inherited Create;
-  xt:=table_func.Create('x_vs_lambda.txt');
-  yt:=table_func.Create('y_vs_lambda.txt');
-  zt:=table_func.Create('z_vs_lambda.txt');
+  xt:=table_func.Create('data/colorimetry/x_vs_lambda.txt');
+  yt:=table_func.Create('data/colorimetry/y_vs_lambda.txt');
+  zt:=table_func.Create('data/colorimetry/z_vs_lambda.txt');
   rt:=table_func.Create;
   bt:=table_func.Create;
   gt:=table_func.Create;
@@ -103,8 +126,11 @@ end;
 
 function colorimetry_funcs.gamma(x: Real): Integer;
 begin
-  if x<0.0031308 then gamma:=Round(x*12.92*255)
-  else gamma:=Round(((1+0.055)*power(x,1/2.4)-0.055)*255);
+  if x<0 then gamma:=0
+  else if x<0.0031308 then gamma:=Round(x*12.92*255)
+    else
+      if x<=1 then gamma:=Round(((1+0.055)*power(x,1/2.4)-0.055)*255)
+      else gamma:=255;
 end;
 
 function colorimetry_funcs.XYZ2RGB(x:Real;y:Real;z:Real): RGBf;
@@ -126,16 +152,6 @@ begin
   XYZ2RGB_no_limit.R:=3.063*x-1.393*y-0.476*z;
   XYZ2RGB_no_limit.G:=-0.969*x+1.876*y+0.042*z;
   XYZ2RGB_no_limit.B:=0.068*x-0.229*y+1.069*z;
-end;
-
-function colorimetry_funcs.ColorFromxy(x: Real;y: Real) :TColor;
-var col: RGBf;
-    sum: Real;
-begin
-  col:=XYZ2RGB(x,y,1-x-y);
-  sum:=max(col.R,max(col.G,col.B));
-  ColorFromxy:=RGB(gamma(col.R/sum),gamma(col.G/sum),gamma(col.B/sum));
-
 end;
 
 function colorimetry_funcs.ColorFromCCT(T: Real) :TColor;
@@ -167,7 +183,7 @@ begin
 
 //    sum:=col.R+col.G+col.B;
 
-  ColorFromCCT:=RGB(gamma(col.R/sum),gamma(col.G/sum),gamma(col.B/sum));
+  ColorFromCCT:=RGB(Round(col.R/sum*255),Round(col.G/sum*255),Round(col.B/sum*255));
 
 end;
 
@@ -227,10 +243,20 @@ begin
   bt.addpoint(X,b);
 end;
 
-procedure colorimetry_funcs.AddMonochr(X: Real;lambda:Real);
+procedure colorimetry_funcs.AddMonochr(x,lambda: Real);
 var temp: RGBf;
 begin
   temp:=XYZ2RGB_no_limit(xt[lambda],yt[lambda],zt[lambda]);
+  rt.addpoint(X,temp.R);
+  gt.addpoint(X,temp.G);
+  bt.addpoint(X,temp.B);
+end;
+
+
+procedure colorimetry_funcs.AddMonochr(X,lambda,coeff: Real);
+var temp: RGBf;
+begin
+  temp:=XYZ2RGB_no_limit(coeff*xt[lambda],coeff*yt[lambda],coeff*zt[lambda]);
   rt.addpoint(X,temp.R);
   gt.addpoint(X,temp.G);
   bt.addpoint(X,temp.B);
@@ -297,12 +323,95 @@ begin
   end;
 end;
 
+function colorimetry_funcs.ColorFromTable(X: Real): TColor;
+var i,l: Integer;
+    r0,g0,b0: Real;
+    mi,ma: Real;
+    arg: Real;
+begin
+  mi:=-min(rt.ymin,min(gt.ymin,bt.ymin))*desat;
+  ma:=max(rt.ymax,max(gt.ymax,bt.ymax))*sat+mi;
+    r0:=rt[x]+mi;
+    if r0<0 then r0:=0;
+    g0:=gt[x]+mi;
+    if g0<0 then g0:=0;
+    b0:=bt[x]+mi;
+    if b0<0 then b0:=0;
+    r0:=gamma_func(r0/ma)*255;
+    g0:=gamma_func(g0/ma)*255;
+    b0:=gamma_func(b0/ma)*255;
+    if r0>255 then begin g0:=g0*255/r0; b0:=b0*255/r0; r0:=255; end;
+    if g0>255 then begin r0:=r0*255/g0; b0:=b0*255/g0; g0:=255; end;
+    if b0>255 then begin r0:=r0*255/b0; g0:=g0*255/b0; b0:=255; end;
+    ColorFromTable:=RGB(round(r0),round(g0),round(b0));
+
+
+end;
+
 procedure colorimetry_funcs.Clear;
 begin
   rt.Clear;
   gt.Clear;
   bt.Clear;
 end;
+
+function colorimetry_funcs.ColorOfRGBSum: TColor;
+var r,g,b,m: Real;
+    ri,gi,bi: Integer;
+begin
+  r:=rt.integrate;
+  g:=gt.integrate;
+  b:=bt.integrate;
+  if r<0 then r:=0;
+  if g<0 then g:=0;
+  if b<0 then b:=0;
+  m:=max(r,max(g,b));
+  ri:=gamma(r/m);
+  gi:=gamma(g/m);
+  bi:=gamma(b/m);
+  ColorOfRGBSum:=RGB(ri,gi,bi);
+end;
+
+function colorimetry_funcs.ColorFromYxy(L,x,y: Real): TColor;
+var t_rgb: rgbf;
+    m: Real;
+begin
+  t_rgb:=XYZ2RGB(x,y,1-x-y);
+  m:=max(t_rgb.R,max(t_rgb.G,t_rgb.B));
+  ColorFromYxy:=RGB(gamma(t_rgb.R/m),gamma(t_rgb.G/m),gamma(t_rgb.B/m));
+
+end;
+
+function colorimetry_funcs.ColorFromNormedXYZ(X,Y,Z: Real): TColor;
+//y=1 должно преобр в 255
+var t_rgb: rgbf;
+begin
+  t_rgb:=XYZ2RGB(X,Y,Z);
+  ColorFromNormedXYZ:=RGB(gamma(t_rgb.R),gamma(t_rgb.G),gamma(t_rgb.B));
+end;
+
+function colorimetry_funcs.Spectrum2XYZ(sp: table_func): CIE1931;
+var temp: table_func;
+begin
+//из заданного спектра получаем цвет
+//воспользуемс€ умножением и интегрированием функций из table_func_lib
+temp:=table_func.Create;
+temp.assign(xt);
+temp.multiply(sp);
+Spectrum2XYZ.X:=temp.integrate;
+
+temp.Clear;
+temp.assign(yt);
+temp.multiply(sp);
+spectrum2XYZ.Y:=temp.integrate;
+
+temp.Clear;
+temp.assign(zt);
+temp.multiply(sp);
+spectrum2XYZ.Z:=temp.integrate;
+temp.Free;
+end;
+
 
 
 end.
