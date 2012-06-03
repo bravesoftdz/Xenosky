@@ -225,6 +225,7 @@ begin
         ave:=ave+Y_img[i,j];
     ave:=2*ave/_resX/_resY/power(2,expo_corr); //нашли среднюю €ркость
     //она будет соотв. 128, т.е серому цвету
+    if ave=0 then exit;
     for i:=0 to _resX-1 do
       for j:=0 to _resY-1 do begin
         img.Canvas.Pixels[i,j]:=collib.ColorFromNormedXYZ(X_img[i,j]/ave,Y_img[i,j]/ave,Z_img[i,j]/ave);
@@ -240,7 +241,7 @@ begin
     for i:=0 to _resX-1 do
       for j:=0 to _resY-1 do
         if ave<Y_img[i,j] then ave:=Y_img[i,j];
-
+    if ave=0 then exit;
     for i:=0 to _resX-1 do
       for j:=0 to _resY-1 do begin
         img.Canvas.Pixels[i,j]:=collib.ColorFromNormedXYZ(X_img[i,j]/ave,Y_img[i,j]/ave,Z_img[i,j]/ave);

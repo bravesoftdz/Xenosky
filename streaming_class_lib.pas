@@ -6,11 +6,14 @@ uses Classes,sysutils;
 type
 
 streamingClass=class(TComponent)
+  private
+
   protected
     procedure   GetChildren(Proc: TGetChildProc; Root: TComponent); override;
     function    GetChildOwner: TComponent; override;
     procedure   SetOwner( aComponent: TComponent );
   public
+    constructor Create(owner: TComponent; _name: TComponentName); overload; virtual;
     procedure SaveToFile(filename: string);
     class function LoadFromFile(filename: string): streamingClass;
     procedure SaveBinaryToFile(filename: string);
@@ -21,6 +24,12 @@ streamingClass=class(TComponent)
   end;
 
 implementation
+
+constructor streamingClass.Create(owner: TComponent;_name: TComponentName);
+begin
+  inherited Create(owner);
+  name:=_name;
+end;
 
 procedure streamingClass.SetOwner(aComponent: TComponent);
 begin

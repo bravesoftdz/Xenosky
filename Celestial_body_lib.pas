@@ -11,20 +11,21 @@ TCelestialBody=class(streamingClass)
     _azimuth: Real; //азимут
     _altitude: Real; //угол места
     _ang_size: Real; //угол зрения
-
+    procedure trackChange(value: Real; var name: Real);
   //    _filename: string;
 //    procedure write_filename(fn: string);
   public
     //spectrum: table_func; //спектр
     //img: TBitmap; //изображение
-    constructor Create(owner: TComponent);overload; override;
-//    constructor Create(
+    constructor Create(owner: TComponent; _name: TComponentName); overload; override;
+    constructor Create(owner: TComponent); overload; override;
+
     destructor Destroy;
     procedure assign(Source:TPersistent); override;
   published
     img: TBitmap;
     spectrum: table_func;
-    property vmag: Real read _vmag write _vmag; //зв. величина
+    property vmag: Real read _vmag write trackChange(_vmag) //зв. величина
     property title: string read _title write _title;
     property description: string read _description write _description;
     property azimuth: Real read _azimuth write _azimuth;
@@ -53,13 +54,20 @@ begin
   else inherited Assign(Source);
 end;
 
+constructor TCelestialBody.Create(owner: TComponent; _name: TComponentName);
+begin
+  Inherited Create(owner,_name);
+  spectrum:=table_func.Create(self,'spectrum');
+  img:=TBitmap.Create;
+end;
+
 constructor TCelestialBody.Create(owner: TComponent);
 begin
   Inherited Create(owner);
   spectrum:=table_func.Create(self);
-//  spectrum.Name:='spectrum';
   img:=TBitmap.Create;
 end;
+
 
 destructor TCelestialBody.Destroy;
 begin

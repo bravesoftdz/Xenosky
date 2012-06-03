@@ -17,7 +17,9 @@ uses
   table_func_lib in 'table_func_lib.pas',
   colorimetry_lib in 'colorimetry_lib.pas',
   streaming_class_lib in 'streaming_class_lib.pas',
-  StreamIO in 'StreamIO.pas';
+  StreamIO in 'StreamIO.pas',
+  xenosky_data_class in 'xenosky_data_class.pas',
+  current_working_file_info in 'current_working_file_info.pas';
 
 {$R *.res}
 

@@ -7,7 +7,9 @@ uses
   Dialogs, StdCtrls, Unit2,Celestial_body_lib,table_func_lib,unit3,
   ExtCtrls,unit4, AppEvnts,atmosphere_lib, TeEngine, Series, TeeProcs,
   Chart, ComCtrls,Spectator_lib,colorimetry_lib,math,optic_aberrations,unit5,
-  fractal_terrain,unit6,unit7,streaming_class_lib;
+  fractal_terrain,unit6,unit7,streaming_class_lib,xenosky_data_class,
+  XPStyleActnCtrls, ActnList, ActnMan, ToolWin, ActnCtrls, ActnMenus,
+  Buttons,current_working_file_info;
 
 type
   TForm1 = class(TForm)
@@ -63,6 +65,11 @@ type
     Button10: TButton;
     dlgTxt: TSaveDialog;
     Button11: TButton;
+    ActionManager1: TActionManager;
+    Panel1: TPanel;
+    btnNew: TSpeedButton;
+    btnOpen: TSpeedButton;
+    btnSave: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure lstBodiesClick(Sender: TObject);
@@ -97,6 +104,9 @@ type
     procedure Button10Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure btnNewClick(Sender: TObject);
+    procedure btnOpenClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -107,13 +117,13 @@ type
     x,y,z: Real;
   end;
 
-  xenosky_data=class(streamingClass)
-  end;
+
 
 var
   Form1: TForm1;
 
   data: xenosky_data;
+  fileInfo: TCurrentFileInfo;
 
   bodies: array of TCelestialBody;
   at: TAtmosphere;
@@ -136,29 +146,6 @@ var
 implementation
 
 {$R *.dfm}
-
-
-procedure LoadDataFile(FileName: string);
-var t: streamingClass;
-    i,j: Integer;
-begin
-  if data<>nil then data.Free;
-  t:=xenosky_data.LoadFromFile(FileName);
-  if not (t is xenosky_data) then raise exception.Create('Data loaded is not xenosky_data');
-  data:=xenosky_data(t);
-  j:=0;
-  for i:=0 to data.ComponentCount-1 do begin
-    if data.Components[i] is TcelestialBody then begin
-      SetLength(bodies,j+1);
-      bodies[j]:=TCelestialBody(data.components[i]);
-      inc(j);
-    end;
-  end;
-
-
-
-
-end;
 
 
 procedure update_atm;
@@ -190,6 +177,22 @@ begin
 
 end;
 
+procedure LoadDataFile(FileName: string);
+var i,j: Integer;
+begin
+  if data<>nil then data.Free;
+  data:=xenosky_data.LoadFromFile(FileName);
+  SetLength(bodies,data.celestial_bodies_count);
+  j:=0;
+  for i:=0 to data.ComponentCount-1 do begin
+    if data.Components[i] is TcelestialBody then begin
+      bodies[j]:=TCelestialBody(data.components[i]);
+      inc(j);
+    end;
+  end;
+  update_bodies_list;
+end;
+
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   atm.Assign(at);
@@ -201,11 +204,12 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
-(*
+
+
+  (*
   SetLength(bodies,1);
-  bodies[0]:=TCelestialBody.Create(data);
+  bodies[0]:=TCelestialBody.Create(data, 'sun');
   bodies[0].spectrum.loadFromFile('data\spectra\Solar_spectrum.txt');
-  bodies[0].spectrum.name:='spectrum';
   bodies[0].vmag:=-26.74;
   bodies[0].title:='Солнце';
   bodies[0].description:='Солнце нашей солнечной системы, класс G2V';
@@ -214,11 +218,12 @@ begin
   bodies[0].ang_size:=0.5*pi/180;
   bodies[0].img.LoadFromFile('data\img\sun.bmp');
   data.SaveToFile('default_data.txt');
-*)  
+  *)
 
-  LoadDataFile('default_data.txt');
+  //LoadDataFile('default_data.txt');
 
-  update_bodies_list;
+  btnNewClick(self);
+
   update_atm;
 
   txtBlockBottomChange(Form1);
@@ -368,7 +373,11 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  data:=xenosky_data.Create(nil);
+  data:=xenosky_data.Create(nil,'data');
+  fileInfo:=TCurrentFileInfo.Create;
+  fileInfo.SaveButton:=btnSave;
+  fileInfo.Clear;
+
 
   at:=TAtmosphere.Create;
   previewer:=TSpectator.Create;
@@ -400,6 +409,7 @@ begin
   chart_spectrum.Free;
 
   data.free;
+  fileinfo.Free;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
@@ -741,6 +751,30 @@ begin
     data.SaveToFile(dlgTxt.FileName);
 end;
 
-initialization
-RegisterClass(xenosky_data);
+procedure TForm1.btnNewClick(Sender: TObject);
+begin
+  LoadDataFile('default_data.txt');
+  FileInfo.Change;
+  FileInfo.FileName:='';
+end;
+
+procedure TForm1.btnOpenClick(Sender: TObject);
+begin
+  if OpenDialog1.Execute then begin
+    LoadDataFile(OpenDialog1.FileName);
+    FileInfo.Clear;
+    FileInfo.FileName:=OpenDialog1.FileName;
+  end;
+end;
+
+procedure TForm1.btnSaveClick(Sender: TObject);
+begin
+  if FileInfo.FileName='' then
+    if not SaveDialog1.Execute then exit
+    else FileInfo.FileName:=SaveDialog1.FileName;
+  data.SaveToFile(FileInfo.Filename);
+  fileInfo.Clear;
+
+end;
+
 end.
