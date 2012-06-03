@@ -39,7 +39,7 @@ TAtmosphere=class(TPersistent)
 
     result_extinction: table_func;
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
     procedure Assign(Source: TPersistent); override;
     procedure Compute_extinction(angle: Real);
     procedure Compute_skydome_model(angle: Real; vmag: Real; x: Real; y: Real);

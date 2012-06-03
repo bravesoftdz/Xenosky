@@ -15,12 +15,15 @@ TCelestialBody=class(streamingClass)
   //    _filename: string;
 //    procedure write_filename(fn: string);
   public
-    spectrum: table_func; //спектр
-    img: TBitmap; //изображение
-    constructor Create(owner: TComponent); override;
+    //spectrum: table_func; //спектр
+    //img: TBitmap; //изображение
+    constructor Create(owner: TComponent);overload; override;
+//    constructor Create(
     destructor Destroy;
     procedure assign(Source:TPersistent); override;
   published
+    img: TBitmap;
+    spectrum: table_func;
     property vmag: Real read _vmag write _vmag; //зв. величина
     property title: string read _title write _title;
     property description: string read _description write _description;
@@ -53,7 +56,8 @@ end;
 constructor TCelestialBody.Create(owner: TComponent);
 begin
   Inherited Create(owner);
-  spectrum:=table_func.Create;
+  spectrum:=table_func.Create(self);
+//  spectrum.Name:='spectrum';
   img:=TBitmap.Create;
 end;
 

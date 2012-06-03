@@ -16,7 +16,8 @@ uses
   Unit7 in 'Unit7.pas' {Form7},
   table_func_lib in 'table_func_lib.pas',
   colorimetry_lib in 'colorimetry_lib.pas',
-  streaming_class_lib in 'streaming_class_lib.pas';
+  streaming_class_lib in 'streaming_class_lib.pas',
+  StreamIO in 'StreamIO.pas';
 
 {$R *.res}
 

@@ -136,29 +136,8 @@ var
 implementation
 
 {$R *.dfm}
-(*
-function coord_conversion(a: coord): coord;
-begin
 
-  coord_conversion.x:=a.x*coaz-a.z*siaz; //окончательный результат
-  a.z:=a.x*siaz+a.z*coaz; //это было преобр. по азимуту
-  coord_conversion.y:=a.y*coal-a.z*sial;
-  coord_conversion.z:=a.y*sial+a.z*coal;
 
-end;
-*)
-(*
-procedure init_sico;
-var raz,ral :Real;
-begin
-  raz:=az*pi/180;
-  ral:=al*pi/180;
-  siaz:=sin(raz);
-  coaz:=cos(raz);
-  sial:=sin(ral);
-  coal:=cos(ral);
-end;
-*)
 procedure LoadDataFile(FileName: string);
 var t: streamingClass;
     i,j: Integer;
@@ -222,10 +201,11 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
-  (*
+(*
   SetLength(bodies,1);
   bodies[0]:=TCelestialBody.Create(data);
   bodies[0].spectrum.loadFromFile('data\spectra\Solar_spectrum.txt');
+  bodies[0].spectrum.name:='spectrum';
   bodies[0].vmag:=-26.74;
   bodies[0].title:='Солнце';
   bodies[0].description:='Солнце нашей солнечной системы, класс G2V';
@@ -234,7 +214,7 @@ begin
   bodies[0].ang_size:=0.5*pi/180;
   bodies[0].img.LoadFromFile('data\img\sun.bmp');
   data.SaveToFile('default_data.txt');
-  *)
+*)  
 
   LoadDataFile('default_data.txt');
 
@@ -356,7 +336,7 @@ procedure TForm1.ApplicationEvents1Message(var Msg: tagMSG;
 var i: Integer;
 begin
   if (Msg.message=wm_keydown) and use_keyboard then begin
-   //txtAzimuth.Text:=IntToStr(Msg.wParam);
+
   with Previewer do begin
    i:=Msg.wParam;
    if i=37 then begin

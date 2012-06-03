@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 213
-  Top = 138
-  Width = 870
-  Height = 638
+  Left = 125
+  Top = 352
+  Width = 1117
+  Height = 788
   Caption = 'Xenosky v. 0.33 - '#1075#1077#1085#1077#1088#1072#1090#1086#1088' '#1080#1085#1086#1087#1083#1072#1085#1077#1090#1085#1086#1075#1086' '#1085#1077#1073#1072
   Color = clBtnFace
   Constraints.MinHeight = 638
@@ -18,8 +18,8 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
-    862
-    604)
+    1109
+    754)
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
@@ -298,8 +298,8 @@ object Form1: TForm1
   object PageControl1: TPageControl
     Left = 0
     Top = 176
-    Width = 858
-    Height = 427
+    Width = 1105
+    Height = 577
     ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 4
@@ -309,8 +309,8 @@ object Form1: TForm1
       object Image1: TImage
         Left = 0
         Top = 0
-        Width = 850
-        Height = 399
+        Width = 1097
+        Height = 549
         Align = alClient
       end
     end
@@ -318,13 +318,13 @@ object Form1: TForm1
       Caption = #1043#1088#1072#1092#1080#1082#1080
       ImageIndex = 1
       DesignSize = (
-        850
-        399)
+        1097
+        549)
       object Chart1: TChart
         Left = 0
         Top = 32
-        Width = 850
-        Height = 363
+        Width = 1097
+        Height = 513
         BackWall.Brush.Color = clWhite
         BackWall.Brush.Style = bsClear
         Title.Font.Charset = DEFAULT_CHARSET
